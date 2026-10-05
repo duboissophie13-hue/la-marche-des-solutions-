@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#3157a6">
+<title>La Marche des Solutions</title>
+<style>
+:root{--blue:#3157a6;--ink:#172033;--muted:#667085;--bg:#f5f7fb;--card:#fff;--line:#d9dee8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+main{max-width:680px;margin:auto;padding:20px 16px 36px}
+header{text-align:center;padding:20px 8px 18px}h1{font-size:clamp(1.7rem,7vw,2.4rem);margin:0 0 8px}header p{color:var(--muted);margin:0;line-height:1.5}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+button{min-height:48px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font:inherit;font-weight:700;padding:10px 14px}
+button:focus-visible{outline:3px solid #c9d5f5;outline-offset:2px}
+button.active,.primary{background:var(--blue);color:white;border-color:var(--blue)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:24px;min-height:300px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 8px 28px rgba(23,32,51,.06)}
+.kicker{text-transform:uppercase;letter-spacing:.08em;font-size:.76rem;font-weight:800;color:var(--blue);margin-bottom:14px}
+.question{font-size:1.25rem;line-height:1.45;font-weight:750}
+.solution{margin-top:18px;padding:15px;border-radius:16px;background:#f5f7fb;border:1px solid var(--line);line-height:1.5}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+.meta{display:flex;justify-content:space-between;color:var(--muted);font-size:.8rem;margin:10px 2px}
+footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:22px;line-height:1.5}
+@media(max-width:420px){main{padding:12px}.card{padding:20px}.question{font-size:1.12rem}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>La Marche des Solutions</h1>
+<p>Votre mobilité, votre défi, votre solution.</p>
+</header>
+
+<div class="tabs" role="tablist">
+<button id="situTab" class="active" aria-selected="true">🎴 Situations salariés</button>
+<button id="solTab" aria-selected="false">💡 Solutions</button>
+</div>
+
+<section class="card" aria-live="polite">
+<div>
+<div id="kicker" class="kicker">Situation salarié</div>
+<div id="question" class="question"></div>
+<div id="solution" class="solution" hidden></div>
+</div>
+<div class="actions">
+<button id="reveal" class="primary">Voir la solution</button>
+<button id="next">Nouvelle carte</button>
+</div>
+</section>
+<div class="meta"><span id="counter"></span><span id="status">À vous de jouer !</span></div>
+<footer>Astuce : tirez une carte, échangez quelques minutes, puis découvrez la piste de solution.</footer>
+</main>
+<script>
+const situations = [
+"Je voudrais venir au travail autrement, mais je ne sais pas quelles alternatives existent près de chez moi.",
+"Je prends ma voiture car mes horaires sont décalés et j’ai peur de ne pas avoir de solution en transports en commun.",
+"J’aimerais faire du vélo pour aller travailler, mais la distance me décourage.",
+"Je pourrais covoiturer, mais je ne connais personne qui habite près de chez moi.",
+"Je télétravaille certains jours et je cherche à réduire mes déplacements les autres jours.",
+"Je trouve les transports en commun trop longs par rapport à la voiture.",
+"Je ne sais pas si mon entreprise propose des aides pour mes déplacements domicile-travail.",
+"Je voudrais combiner vélo et transports en commun, mais je ne sais pas comment m’organiser.",
+"Je travaille tôt le matin et je pense que les transports collectifs ne sont pas adaptés à mes horaires.",
+"Je voudrais réduire le coût de mes trajets sans changer complètement mes habitudes.",
+"Je suis prêt à essayer une nouvelle mobilité, mais j’ai besoin d’un premier pas simple.",
+"Je ne connais pas les dispositifs de mobilité disponibles autour de mon lieu de travail.",
+"Je viens de déménager et je cherche la meilleure façon de rejoindre mon lieu de travail.",
+"Je fais souvent des trajets courts en voiture alors qu’une autre solution serait peut-être possible.",
+"Je voudrais savoir si le vélo électrique pourrait être une bonne solution pour moi.",
+"Je ne me sens pas suffisamment en sécurité à vélo sur mon trajet habituel.",
+"Je voudrais partager mes trajets avec des collègues, mais je ne sais pas comment trouver des personnes intéressées.",
+"Je pense que changer de mode de transport serait compliqué avec mes contraintes familiales.",
+"Je voudrais comparer le coût réel de ma voiture avec d’autres solutions de mobilité.",
+"Je suis curieux de découvrir une solution de mobilité que je n’ai encore jamais testée."
+];
+const solutions = [
+"Tester un itinéraire alternatif avec un calculateur multimodal et comparer durée, coût et simplicité.",
+"Vérifier les horaires réels sur le trajet domicile-travail et identifier un ou deux créneaux compatibles.",
+"Faire un essai sur une journée ou une semaine avec un vélo classique ou à assistance électrique.",
+"Chercher un service de mise en relation pour le covoiturage domicile-travail et proposer un trajet test.",
+"Regrouper les jours sur site et optimiser les déplacements lorsque cela est possible.",
+"Comparer le temps porte-à-porte plutôt que le seul temps passé dans le véhicule.",
+"Demander au service RH ou référent mobilité les aides et dispositifs proposés par l’employeur.",
+"Tester un trajet combinant vélo et transport collectif, avec une solution de stationnement adaptée.",
+"Étudier les offres de transport très tôt le matin et les alternatives comme le covoiturage.",
+"Calculer le coût mensuel complet de la voiture puis comparer avec plusieurs alternatives.",
+"Choisir une seule action à tester cette semaine : un trajet, un covoiturage ou un nouveau mode.",
+"Identifier les ressources mobilité de son territoire et noter les deux dispositifs les plus pertinents.",
+"Comparer deux ou trois itinéraires depuis le nouveau domicile et conserver le plus réaliste.",
+"Repérer les trajets courts réalisables à pied, à vélo ou en transport collectif.",
+"Tester un vélo à assistance électrique sur le trajet réel avant d’envisager un achat.",
+"Identifier les portions inconfortables du trajet et rechercher un itinéraire cyclable plus sécurisé.",
+"Créer un petit groupe de collègues intéressés et proposer un point de rendez-vous commun.",
+"Lister les contraintes familiales puis chercher une solution flexible plutôt qu’un changement total.",
+"Comparer carburant, stationnement, entretien et temps de trajet avec les alternatives disponibles.",
+"Choisir une solution inconnue et la tester une fois, sans obligation de l’adopter ensuite.",
+"Demander conseil à un référent mobilité ou à un service local d’accompagnement pour construire un plan personnalisé.",
+"Commencer par un seul jour sans voiture afin d’identifier les difficultés concrètes.",
+"Préparer son trajet la veille et conserver une solution de secours pour réduire l’appréhension.",
+"Partager son expérience avec un collègue afin de rendre le changement plus facile à reproduire.",
+"Faire une courte expérimentation avant toute décision durable."
+];
+
+let mode="situations", index=0;
+const $=id=>document.getElementById(id);
+function render(){
+ const arr=mode==="situations"?situations:solutions;
+ index=Math.floor(Math.random()*arr.length);
+ $("kicker").textContent=mode==="situations"?"Situation salarié":"Solution";
+ $("question").textContent=arr[index];
+ $("counter").textContent=(index+1)+" / "+arr.length;
+ $("solution").hidden=true; $("solution").textContent="";
+ $("reveal").hidden=mode!=="situations";
+ $("reveal").textContent="Voir la solution";
+}
+$("reveal").onclick=()=>{
+ $("solution").hidden=!$("solution").hidden;
+ if(!$("solution").hidden) $("solution").textContent=solutions[index%solutions.length];
+ $("reveal").textContent=$("solution").hidden?"Voir la solution":"Cacher la solution";
+};
+$("next").onclick=render;
+$("situTab").onclick=()=>{mode="situations";$("situTab").classList.add("active");$("solTab").classList.remove("active");render()};
+$("solTab").onclick=()=>{mode="solutions";$("solTab").classList.add("active");$("situTab").classList.remove("active");render()};
+render();
+</script>
+</body>
+</html>
